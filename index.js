@@ -14,6 +14,9 @@ app.listen(PORT, () => {
 });
 
 // não remova esse endpoint, e para o avaliador funcionar
+
+// funcão auxiliar de validação 
+
 app.get('/', (_request, response) => {
   response.status(HTTP_OK_STATUS).send();
 });
@@ -57,6 +60,18 @@ app.get('/talker/:id', async (req, res) => {
 });
 
 app.post('/login', (req, res) => {
+  const { email, password } = req.body;
+  if (!email) {
+    return res.status(400).json({ message: 'O campo "email" é obrigatório' });
+  } if (!email.includes('@')) {
+    return res.status(400).json({ message: 'O "email" deve ter o formato "email@email.com"' });
+  }
+  if (!password) {
+    return res.status(400).json({ message: 'O campo "password" é obrigatório' });
+  } if (password.length < 6) {
+    return res.status(400).json({ message: 'O "password" deve ter pelo menos 6 caracteres' });
+  }
+
   const token1 = generateToken();
   console.log(token1);
   return res.status(200).json({ token: token1 });
