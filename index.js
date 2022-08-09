@@ -7,6 +7,7 @@ const {
   nameValidator,
   ageValidator,
   talkValidator,
+  talkWatchedAtValidator,
 } = require('./middleWares/middlewares');
 
 const app = express();
@@ -81,7 +82,7 @@ app.post('/login', (req, res) => {
   return res.status(200).json({ token: token1 });
 });
 
-app.post('/talker', tokenValidator, nameValidator, ageValidator, talkValidator, async (req, res) => {
+app.post('/talker', tokenValidator, nameValidator, ageValidator, talkValidator, talkWatchedAtValidator, async (req, res) => {
   const talkers = await fs.readFile('./talker.json', 'utf8');
   const { name, age, talk } = req.body;
   const newTalker = createNewTalker(name, age, talk);
