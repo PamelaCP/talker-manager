@@ -1,6 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const fs = require('fs');
+const fs = require('fs/promises');
 const crypto = require('crypto');
 const path = require('path');
 
@@ -23,10 +23,11 @@ function tokenValidator(token) {
   return false;
 } 
 
-function getTalkers() {
- const talkers = fs.readFileSync(
-    path.join(__dirname, '', 'talker.json'), 'utf8',
-  );
+ function getTalkers() {
+ const talkers = fs.readFile('./talker.json', 'utf-8');
+//  await fs.readFile(
+//     path.join(__dirname, '', 'talker.json'), 'utf8',
+//   );
   return JSON.parse(talkers);
 }
 
@@ -100,12 +101,12 @@ app.get('/', (_request, response) => {
 });
 
 app.get('/talker', async (req, res) => {
-  const result = await fs.readFile('./talker.json', 'utf8', (err) => {
-    if (err) {
-      console.log(err);
-      return err;
-    }
-  });
+  const result = await fs.readFile('./talker.json', 'utf-8');
+    // if (err) {
+    //   console.log(err);
+    //   return err;
+    // }
+  // });
   console.log(result);
   const talkers = JSON.parse(result);
 
@@ -153,7 +154,7 @@ app.post('/login', (req, res) => {
   console.log(token1);
   return res.status(200).json({ token: token1 });
 });
-app.post('/talker', (req, res) => {
+app.post('/talker', async (req, res) => {
   if (tokenValidator(req.headers.authorization)) {
     return res.status(401).send(tokenValidator(req.headers.authorization));
   }
@@ -167,7 +168,7 @@ app.post('/talker', (req, res) => {
   newTalker.id = talkers.length + 1;
   const newTalkers = talkers;
   newTalkers.push(newTalker);
-  fs.writeFileSync(
+ await fs.writeFile(
     path.join(__dirname, '', 'talker.json'), JSON.stringify(newTalkers), 
   );
 
