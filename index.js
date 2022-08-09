@@ -6,6 +6,7 @@ const {
   tokenValidator,
   nameValidator,
   ageValidator,
+  talkValidator,
 } = require('./middleWares/middlewares');
 
 const app = express();
@@ -19,8 +20,6 @@ app.listen(PORT, () => {
 });
 
 // não remova esse endpoint, e para o avaliador funcionar
-
-// funcão auxiliar de validação 
 
 app.get('/', (_request, response) => {
   response.status(HTTP_OK_STATUS).send();
@@ -82,7 +81,7 @@ app.post('/login', (req, res) => {
   return res.status(200).json({ token: token1 });
 });
 
-app.post('/talker', tokenValidator, nameValidator, ageValidator, async (req, res) => {
+app.post('/talker', tokenValidator, nameValidator, ageValidator, talkValidator, async (req, res) => {
   const talkers = await fs.readFile('./talker.json', 'utf8');
   const { name, age, talk } = req.body;
   const newTalker = createNewTalker(name, age, talk);
