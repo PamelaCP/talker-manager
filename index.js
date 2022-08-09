@@ -55,15 +55,17 @@ function ageValidator(age) {
 }
 
 function talkWatchedAtValidator(talk) {
+  const dateRegex = /(0[1-9]|[12][0-9]|3[01])[- /.](0[1-9]|1[012])[- /.](19|20)\d\d$/;
   if (!talk.watchedAt) {
     return { message: 'O campo "watchedAt" é obrigatório' };
+  } if (!dateRegex.test(talk.watchedAt)) {
+    return { message: 'O campo "watchedAt" deve ter o formato "dd/mm/aaaa"' };
   }
-  // TODO fazer validação do formato da data;
 }
 
 function talkRateValidator(talk) {
   if (talk.rate < 1 || talk.rate > 5) {
-  return { message: 'O campo "rate" deve ser um inteiro de 1 à 5' }
+  return { message: 'O campo "rate" deve ser um inteiro de 1 à 5' };
   } if (!talk.rate) {
     return { message: 'O campo "rate" é obrigatório' };
   }
