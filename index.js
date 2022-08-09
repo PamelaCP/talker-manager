@@ -10,10 +10,6 @@ app.use(bodyParser.json());
 const HTTP_OK_STATUS = 200;
 const PORT = '3000';
 
-app.listen(PORT, () => {
-  console.log('Online');
-});
-
 // não remova esse endpoint, e para o avaliador funcionar
 
 // funcão auxiliar de validação:
@@ -176,4 +172,8 @@ app.post('/talker', (req, res) => {
   );
 
   return res.status(201).send(newTalker);
+});
+
+app.listen(PORT, () => {
+  console.log('Online');
 });
