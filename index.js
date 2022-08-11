@@ -8,6 +8,7 @@ const {
   ageValidator,
   talkValidator,
   talkWatchedAtValidator,
+  talkRateValidator,
 } = require('./middleWares/middlewares');
 
 const app = express();
@@ -82,19 +83,24 @@ app.post('/login', (req, res) => {
   return res.status(200).json({ token: token1 });
 });
 
-app.post('/talker', tokenValidator, nameValidator, ageValidator, talkValidator, talkWatchedAtValidator, async (req, res) => {
-  const talkers = await fs.readFile('./talker.json', 'utf8');
-  const { name, age, talk } = req.body;
-  const newTalker = createNewTalker(name, age, talk);
-  if (talkerValidator(newTalker)) {
-    return res.status(400).send(talkerValidator(newTalker));
-  }
-  newTalker.id = talkers.length + 1;
-  const newTalkers = talkers;
-  newTalkers.push(newTalker);
-  fs.writeFileSync(
-    path.join(__dirname, '', 'talker.json'), JSON.stringify(newTalkers), 
-  );
+app.post('/talker', 
+tokenValidator, 
+nameValidator, 
+ageValidator, 
+talkValidator, 
+talkWatchedAtValidator,
+talkRateValidator,
+async (req, res) => {
+  const newTalker = req.body;
+  const talkers = await fs.readFile('./talker.json');
+  const arrTalkers = JSON.parse(talkers);
 
-  return res.status(201).send(newTalker);
+  const addNewTalker = {
+    id: arrTalkers.length + 1,
+    ...newTalker,
+  };
+
+  arrTalkers.push(addNewTalker);
+  await fs.writeFile('./talker.json', JSON.stringify(arrTalkers));
+  res.status(201).json(addNewTalker);
 });
