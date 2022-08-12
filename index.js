@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const fs = require('fs/promises');
+const path = require('path');
 const crypto = require('crypto');
 const {
   tokenValidator,
@@ -10,6 +11,9 @@ const {
   talkWatchedAtValidator,
   talkRateValidator,
 } = require('./middleWares/middlewares');
+
+const file = path.resolve(__dirname, 'talker.json');
+const getTalker = async () => fs.readFile(file, 'utf8');
 
 const app = express();
 app.use(bodyParser.json());
@@ -28,14 +32,9 @@ app.get('/', (_request, response) => {
 });
 
 app.get('/talker', async (req, res) => {
-  const result = await fs.readFile('./talker.json', 'utf8', (err) => {
-    if (err) {
-      console.log(err);
-      return err;
-    }
-  });
-  console.log(result);
+  const result = await getTalker();
   const talkers = JSON.parse(result);
+  console.log(talkers);
 
   return res.status(200).json(talkers);
 });
@@ -47,8 +46,7 @@ const generateToken = () => {
 
 app.get('/talker/:id', async (req, res) => {
   const { id } = req.params;
-  console.log(id);
-  const result = await fs.readFile('./talker.json', 'utf8');
+  const result = await getTalker();
 
   const talkers = JSON.parse(result);
 
@@ -92,7 +90,7 @@ talkWatchedAtValidator,
 talkRateValidator,
 async (req, res) => {
   const newTalker = req.body;
-  const talkers = await fs.readFile('./talker.json');
+  const talkers = await getTalker();
   const arrTalkers = JSON.parse(talkers);
 
   const addNewTalker = {
@@ -103,4 +101,31 @@ async (req, res) => {
   arrTalkers.push(addNewTalker);
   await fs.writeFile('./talker.json', JSON.stringify(arrTalkers));
   res.status(201).json(addNewTalker);
+});
+
+app.put('/talker/:id', 
+tokenValidator, 
+nameValidator, 
+ageValidator, 
+talkValidator, 
+talkWatchedAtValidator,
+talkRateValidator,
+async (req, res) => {
+  const { id } = req.params;
+  const editTalker = req.body;
+  const result = await getTalker();
+  const talkers = JSON.parse(result);
+  let talkerUpdate = {};
+  const editTalkers = talkers.map((talker) => {
+    if (talker.id === +id) {
+      talkerUpdate = {
+        id: talker.id,
+        ...editTalker,
+      };
+      return talkerUpdate;
+    }
+    return talker;
+  });
+  await fs.writeFile('./talker.json', JSON.stringify(editTalkers));
+  return res.status(200).json(talkerUpdate);
 });
