@@ -103,6 +103,7 @@ async (req, res) => {
   res.status(201).json(addNewTalker);
 });
 
+// realizado com auxilio da mentoria Henrique Baeta 
 app.put('/talker/:id', 
 tokenValidator, 
 nameValidator, 
@@ -128,4 +129,15 @@ async (req, res) => {
   });
   await fs.writeFile('./talker.json', JSON.stringify(editTalkers));
   return res.status(200).json(talkerUpdate);
+});
+
+app.delete('/talker/:id', 
+tokenValidator,
+async (req, res) => {
+  const { id } = req.params;
+  const result = await getTalker();
+  const talkers = JSON.parse(result);
+  const deleteTalker = talkers.find(({ id: idTalker }) => idTalker !== +id);
+  await fs.writeFile('./talker.json', JSON.stringify(deleteTalker));
+  return res.status(204).end();
 });
