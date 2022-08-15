@@ -141,3 +141,11 @@ async (req, res) => {
   await fs.writeFile('./talker.json', JSON.stringify(deleteTalker));
   return res.status(204).end();
 });
+
+app.get('/talker/search', tokenValidator, async (req, res) => {
+  const { q } = req.query;
+  const result = await getTalker();
+  const talkers = JSON.parse(result);
+  const searchTalker = talkers.filter(({ name }) => name.includes(q));
+  res.status(200).json(searchTalker);
+});
