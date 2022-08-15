@@ -31,6 +31,14 @@ app.get('/', (_request, response) => {
   response.status(HTTP_OK_STATUS).send();
 });
 
+app.get('/talker/search', tokenValidator, async (req, res) => {
+  const { q } = req.query;
+  const result = await getTalker();
+  const talkers = JSON.parse(result);
+  const searchTalker = talkers.filter(({ name }) => name.includes(q));
+  res.status(200).json(searchTalker);
+});
+
 app.get('/talker', async (req, res) => {
   const result = await getTalker();
   const talkers = JSON.parse(result);
@@ -140,12 +148,4 @@ async (req, res) => {
   const deleteTalker = talkers.find(({ id: idTalker }) => idTalker !== +id);
   await fs.writeFile('./talker.json', JSON.stringify(deleteTalker));
   return res.status(204).end();
-});
-
-app.get('/talker/search', tokenValidator, async (req, res) => {
-  const { q } = req.query;
-  const result = await getTalker();
-  const talkers = JSON.parse(result);
-  const searchTalker = talkers.filter(({ name }) => name.includes(q));
-  res.status(200).json(searchTalker);
 });
